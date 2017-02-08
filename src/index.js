@@ -16,8 +16,8 @@ const steps = [
   dumpLocalData,
   restoreTargetData,
 ];
-const startStep = process.argv[3] || 0;
-const endStep = process.argv[4] || steps.length;
+const startStep = Number(process.argv[3]) - 1 || 0;
+const endStep = Number(process.argv[4]) || steps.length;
 
 const waterfall = (steps, promise = Promise.resolve(), step = 0) => {
   if (step >= steps.length) return promise;

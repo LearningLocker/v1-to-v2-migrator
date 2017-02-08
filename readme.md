@@ -7,10 +7,39 @@
 1. Change your permissions `sudo chmod 775 ./bin/migrater`.
 1. Create an organisation in the V2 instance (use the organisation's ID in the config file).
 1. Find the LRS ID in the V1 instance for use in the config file.
-1. Setup the `config.json` file from the `config.example.json` file.
+1. Setup your `config/foobar.json` file from the `config/example.json` file.
 1. Run `./bin/migrater config.json` in this directory.
+1. Migrate data on target database.
+  ```
+  node bin/cli.js updateStatementCount
+  nohup node bin/cli.js batchJobs -o ORG_ID -j querybuildercache &
+  nohup node bin/cli.js batchJobs -o ORG_ID -j personas -b 10 &
+  ```
 1. Change endpoint on activity provider.
 1. Run `./bin/migrater config.json` in this directory.
+1. Migrate data on target database.
+  ```
+  node bin/cli.js updateStatementCount
+  nohup node bin/cli.js batchJobs -o ORG_ID -j querybuildercache &
+  nohup node bin/cli.js batchJobs -o ORG_ID -j personas -b 10 &
+  ```
 
 ### Command
-`./bin/migrater <config_file_location> [start_step [end_step]]`
+Format
+```
+./bin/migrater <config_file_location> [start_step [end_step]]
+```
+
+Example
+```
+./bin/migrater config/ht2.json 1 5
+```
+
+### Steps
+1. clearLocalData
+1. writeTimestamp
+1. dumpSourceData
+1. restoreLocalData
+1. migrateLocalData
+1. dumpLocalData
+1. restoreTargetData

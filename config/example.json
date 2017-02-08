@@ -23,7 +23,7 @@
   },
   "local": {
     "database": "",
-    "sourceDumpLocation": "",
-    "targetDumpLocation": ""
+    "sourceDumpLocation": "./dumps/source",
+    "targetDumpLocation": "./dumps/target"
   }
 }
