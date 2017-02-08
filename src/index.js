@@ -24,4 +24,6 @@ const waterfall = (steps, promise = Promise.resolve(), step = 0) => {
   return waterfall(steps, promise.then(steps[step]), step + 1)
 };
 
-waterfall(steps.slice(startStep, endStep)).catch(console.error.bind(console));
+waterfall(steps.slice(startStep, endStep)).catch((err) => {
+  console.error(err);
+});

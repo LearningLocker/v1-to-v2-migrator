@@ -17,11 +17,13 @@ const dumpCollection = (collection, query = '{}') => {
 
 module.exports = () => {
   logStep('Dumping source data');
-  const timestampFilter = config.timestamp ? `, stored: {$gte: "${config.timestamp}"}` : '';
+  const timestampFilter = config.timestamp ? `, stored: {$gte: new Date("${config.timestamp}")}` : '';
   const statementFilter = `{lrs_id: ObjectId("${config.source.lrsId}")${timestampFilter}}`
+  const clientFilter = `{lrs_id: ObjectId("${config.source.lrsId}")}`;
+  const lrsFilter = `{_id: ObjectId("${config.source.lrsId}")}`;
   return Promise.all([
     dumpCollection('statements', statementFilter),
-    dumpCollection('client'),
-    dumpCollection('lrs'),
+    dumpCollection('client', clientFilter),
+    dumpCollection('lrs', lrsFilter),
   ]);
 };
