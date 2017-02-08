@@ -1,4 +1,4 @@
-# Importer
+# LL Migratr
 
 ### Users
 1. Clone the repository `git clone git@github.com:ht2/ll-migratr.git`.
