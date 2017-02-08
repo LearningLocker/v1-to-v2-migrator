@@ -1,9 +1,12 @@
 # LL Migratr
+> Migrates V1 statements, clients, and stores to a V2 database.
 
 ### Users
 1. Clone the repository `git clone git@github.com:ht2/ll-migratr.git`.
 1. Install dependencies `npm install`.
 1. Change your permissions `sudo chmod 775 ./bin/migrater`.
+1. Create an organisation in the V2 instance (use the organisation's ID in the config file).
+1. Find the LRS ID in the V1 instance for use in the config file.
 1. Setup the `config.json` file from the `config.example.json` file.
 1. Run `./bin/migrater config.json` in this directory.
 
