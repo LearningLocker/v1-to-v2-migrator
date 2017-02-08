@@ -1,0 +1,27 @@
+{
+  "target": {
+    "orgId": "",
+    "database": {
+      "authenticationDatabase": "",
+      "hosts": "",
+      "name": "",
+      "username": "",
+      "password": "",
+    }
+  },
+  "source": {
+    "lrsId": "",
+    "database": {
+      "authenticationDatabase": "",
+      "hosts": "",
+      "name": "",
+      "username": "",
+      "password": "",
+    }
+  },
+  "local": {
+    "database": "",
+    "sourceDumpLocation": "",
+    "targetDumpLocation": ""
+  }
+}

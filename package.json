@@ -1,0 +1,19 @@
+{
+  "name": "ll-migratr",
+  "version": "1.0.0",
+  "description": "Migrate from LLV1 to LLV2",
+  "main": "src/index.js",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "fs-extra": "^2.0.0",
+    "mongodb": "^2.2.22",
+    "shelljs": "^0.7.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "migrater": "./bin/migrater"
+  }
+}
