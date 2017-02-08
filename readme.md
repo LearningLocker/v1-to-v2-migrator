@@ -8,4 +8,4 @@
 1. Run `./bin/migrater config.json` in this directory.
 
 ### Command
-./bin/migrater <config_file_location> [start_step [end_step]]
+`./bin/migrater <config_file_location> [start_step [end_step]]`
