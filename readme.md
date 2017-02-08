@@ -9,6 +9,8 @@
 1. Find the LRS ID in the V1 instance for use in the config file.
 1. Setup the `config.json` file from the `config.example.json` file.
 1. Run `./bin/migrater config.json` in this directory.
+1. Change endpoint on activity provider.
+1. Run `./bin/migrater config.json` in this directory.
 
 ### Command
 `./bin/migrater <config_file_location> [start_step [end_step]]`
