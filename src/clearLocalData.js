@@ -1,4 +1,5 @@
 const fs = require('fs-extra');
+const Promise = require('bluebird');
 const mongodb = require('mongodb');
 const config = require('./config');
 const logStep = require('./logStep');
