@@ -7,7 +7,7 @@
 1. Change your permissions `sudo chmod 775 ./bin/migrater`.
 
 ### HT2 Process
-So our process starts at the point where we want to actually start migrating someone's data. Listed the process below.
+Process starts at the point where we want to actually start migrating someone's data. Listed the process below.
 
 1. Do they have a V2 instance already? If yes, then James and Ryan need to analyse it further. Otherwise continue.
 1. James does step 1-3 in [Migratr Process](#migratr-process).
