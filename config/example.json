@@ -24,6 +24,8 @@
   "local": {
     "database": "",
     "sourceDumpLocation": "./dumps/source",
-    "targetDumpLocation": "./dumps/target"
+    "targetDumpLocation": "./dumps/target",
+    "socketTimeoutMS": 300000,
+    "connectTimeoutMS": 300000
   }
 }
