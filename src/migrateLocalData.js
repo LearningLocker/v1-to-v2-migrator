@@ -11,11 +11,11 @@ const connect = (log, fn) =>
       socketTimeoutMS: Number(config.local.socketTimeoutMS || 30000),
     },
   }).then((db) => {
-    console.log(`Started ${log}`);
+    console.log((new Date()).toISOString(), `Started ${log}`);
     const result = fn(db);
     result.then(() => {
       db.close();
-      console.log(`Finished ${log}`);
+      console.log((new Date()).toISOString(), `Finished ${log}`);
     });
     return result;
   });

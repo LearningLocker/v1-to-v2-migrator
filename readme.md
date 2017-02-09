@@ -1,22 +1,29 @@
 # LL Migratr
 > Migrates V1 statements, clients, and stores to a V2 database.
 
-### Users
+### Installation
 1. Clone the repository `git clone git@github.com:ht2/ll-migratr.git`.
 1. Install dependencies `npm install`.
 1. Change your permissions `sudo chmod 775 ./bin/migrater`.
+
+### HT2 Process
+So our process starts at the point where we want to actually start migrating someone's data. Listed the process below.
+1. Do they have a V2 instance already? If yes, then James and I need to analyse it further. Otherwise continue.
+1. James does step 1-3 in [Migratr Process](#migratr-process).
+1. I do steps 4-6 in [Migratr Process](#migratr-process)
+1. James does step 7 in [Migratr Process](#migratr-process).
+1. Client needs to be notified that they can now switch their endpoint. Once switched we continue.
+1. I repeat steps 4-6 for [Migratr Process](#migratr-process).
+1. James repeats step 7 for [Migratr Process](#migratr-process).
+1. Client needs to be notified that they have been migrated.
+
+### Migratr Process
 1. Create an organisation in the V2 instance (use the organisation's ID in the config file).
 1. Find the LRS ID in the V1 instance for use in the config file.
 1. Setup your `config/foobar.json` file from the `config/example.json` file.
-1. Run `./bin/migrater config.json` in this directory.
-1. Migrate data on target database.
-  ```
-  node bin/cli.js updateStatementCount
-  nohup node bin/cli.js batchJobs -o ORG_ID -j querybuildercache &
-  nohup node bin/cli.js batchJobs -o ORG_ID -j personas -b 10 &
-  ```
-1. Change endpoint on activity provider.
-1. Run `./bin/migrater config.json` in this directory.
+1. Run `./bin/migrater config.json 1 5` in this directory.
+1. Check migrated data in Mongo.
+1. Run `./bin/migrater config.json 6 7` in this directory.
 1. Migrate data on target database.
   ```
   node bin/cli.js updateStatementCount
@@ -24,7 +31,14 @@
   nohup node bin/cli.js batchJobs -o ORG_ID -j personas -b 10 &
   ```
 
-[Google Doc](https://docs.google.com/document/d/1uW25C4GQ7OWLXGXKiAwYDPVcKvxWiYbLAeg2nmWJzm0/edit?ts=5899dc4d#)
+### Migratr Steps
+1. clearLocalData
+1. writeTimestamp
+1. dumpSourceData
+1. restoreLocalData
+1. migrateLocalData
+1. dumpLocalData
+1. restoreTargetData
 
 ### Command
 Format
@@ -36,12 +50,3 @@ Example
 ```
 ./bin/migrater config/ht2.json 1 5
 ```
-
-### Steps
-1. clearLocalData
-1. writeTimestamp
-1. dumpSourceData
-1. restoreLocalData
-1. migrateLocalData
-1. dumpLocalData
-1. restoreTargetData
