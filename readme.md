@@ -14,7 +14,8 @@ Process starts at the point where we want to actually start migrating someone's 
 1. Ryan do steps 4-6 in [Migratr Process](#migratr-process)
 1. James does step 7 in [Migratr Process](#migratr-process).
 1. Client needs to be notified that they can now switch their endpoint. Once switched we continue.
-1. Ryan repeat steps 4-6 for [Migratr Process](#migratr-process).
+1. Ryan runs `./bin/migrater config.json 2 5`.
+1. Ryan repeat steps 5-6 for [Migratr Process](#migratr-process).
 1. James repeats step 7 for [Migratr Process](#migratr-process).
 1. Client needs to be notified that they have been migrated.
 
@@ -33,8 +34,8 @@ Process starts at the point where we want to actually start migrating someone's 
   ```
 
 ### Migratr Steps
-1. clearLocalData
 1. writeTimestamp
+1. clearLocalData
 1. dumpSourceData
 1. restoreLocalData
 1. migrateLocalData

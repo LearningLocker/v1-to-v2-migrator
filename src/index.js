@@ -8,8 +8,8 @@ const dumpLocalData = require('./dumpLocalData');
 const restoreTargetData = require('./restoreTargetData');
 
 const steps = [
-  clearLocalData,
   writeTimestamp,
+  clearLocalData,
   dumpSourceData,
   restoreLocalData,
   migrateLocalData,
