@@ -24,6 +24,8 @@
   nohup node bin/cli.js batchJobs -o ORG_ID -j personas -b 10 &
   ```
 
+[Google Doc](https://docs.google.com/document/d/1uW25C4GQ7OWLXGXKiAwYDPVcKvxWiYbLAeg2nmWJzm0/edit?ts=5899dc4d#)
+
 ### Command
 Format
 ```
