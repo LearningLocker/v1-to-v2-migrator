@@ -12,6 +12,6 @@ module.exports = () => {
   const password = createCLIOption('-p', targetDb.password);
   const authDb = createCLIOption('--authenticationDatabase', targetDb.authenticationDatabase);
   const ssl = createCLIFlag('--ssl', targetDb.ssl);
-  const quiet = createCLI('--quiet', targetDb.quiet);
+  const quiet = createCLIFlag('--quiet', targetDb.quiet);
   return exec(`mongorestore ${ssl} --db=${targetDb.name} --host ${targetDb.hosts} ${authDb} ${user} ${password} ${quiet} --noIndexRestore --gzip ${config.local.targetDumpLocation}/${config.local.database}`);
 };
