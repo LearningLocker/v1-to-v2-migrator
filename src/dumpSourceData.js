@@ -19,10 +19,12 @@ module.exports = () => {
   logStep('Dumping source data');
   const timestampFilter = config.timestamp ? `, stored: {$gte: new Date("${config.timestamp}")}` : '';
   const statementFilter = `{lrs_id: ObjectId("${config.source.lrsId}")${timestampFilter}}`
+  const documentFilter = `{lrs: "${config.source.lrsId}"}`;
   const clientFilter = `{lrs_id: ObjectId("${config.source.lrsId}")}`;
   const lrsFilter = `{_id: ObjectId("${config.source.lrsId}")}`;
   return Promise.all([
     dumpCollection('statements', statementFilter),
+    dumpCollection('documentapi', documentFilter),
     dumpCollection('client', clientFilter),
     dumpCollection('lrs', lrsFilter),
   ]);
