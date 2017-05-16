@@ -28,9 +28,9 @@ Process starts at the point where we want to actually start migrating someone's 
 1. Run `./bin/migrater config.json 6 7` in this directory.
 1. Migrate data on target database.
   ```
-  node bin/cli.js updateStatementCount
-  nohup node bin/cli.js batchJobs -o ORG_ID -j querybuildercache &
-  nohup node bin/cli.js batchJobs -o ORG_ID -j personas -b 10 &
+  node cli/dist/server updateStatementCount
+  nohup node cli/dist/server batchJobs -o ORG_ID -j querybuildercache &
+  nohup node cli/dist/server batchJobs -o ORG_ID -j personas -b 10 &
   ```
 
 ### Migratr Steps
