@@ -59,17 +59,19 @@ const migrateScopes = (client) => {
   return Promise.resolve();
 };
 
-const migrateAuthority = client =>
-  updateClient(client, {
+const migrateAuthority = client => {
+  const title = (!client.title || client.title.length === 0 || client.title === 'New Client') ?  `V1 Client - ${client.created_at}` : title;
+  return updateClient(client, {
     $set: {
-      title: `V1 Client - ${client.created_at}`,
+      title,
       authority: (
         client.authority.constructor === Object ?
         JSON.stringify(client.authority) :
         client.authority
       ),
     }
-  });
+  })
+};
 
 const getClients = () =>
   connect('getting clients', db =>
