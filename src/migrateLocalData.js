@@ -60,7 +60,8 @@ const migrateScopes = (client) => {
 };
 
 const migrateAuthority = client => {
-  const title = (!client.title || client.title.length === 0 || client.title === 'New Client') ?  `V1 Client - ${client.created_at}` : title;
+  const wasNamed = !client.title || client.title.length === 0 || client.title === 'New Client';
+  const title = wasNamed ? `V1 Client - ${client.created_at}` : client.title;
   return updateClient(client, {
     $set: {
       title,
