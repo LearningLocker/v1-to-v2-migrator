@@ -6,7 +6,10 @@
   "dependencies": {
     "bluebird": "^3.4.7",
     "fs-extra": "^2.0.0",
+    "highland": "^2.11.1",
+    "lodash": "^4.17.4",
     "mongodb": "^2.2.22",
+    "object-hash": "^1.1.8",
     "shelljs": "^0.7.6"
   },
   "devDependencies": {},

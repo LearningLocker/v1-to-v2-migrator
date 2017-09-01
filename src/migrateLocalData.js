@@ -2,6 +2,9 @@ const Promise = require('bluebird');
 const mongodb = require('mongodb');
 const config = require('./config');
 const logStep = require('./logStep');
+const highland = require('highland');
+const _ = require('lodash');
+const hash = require('object-hash');
 
 const mongoUrl = `mongodb://localhost:27017/${config.local.database}`;
 const connect = (log, fn) =>
@@ -87,6 +90,57 @@ const getClients = () =>
     })
   );
 
+const migrateStatementDocument = (unorderedBulkOp, doc) => {
+  const stored = doc.statement.stored;
+  const timestamp = doc.statement.timestamp;
+
+  const hashingStatement = {
+    id: doc.statement.id,
+    actor: doc.statement.actor,
+    verb: doc.statement.verb,
+    object: doc.statement.object,
+  };
+
+  if (doc.statement.context !== undefined) {
+    hashingStatement.context = doc.statement.context;
+  }
+  if (doc.statement.result !== undefined) {
+    hashingStatement.result = doc.statement.result;
+  }
+  if (doc.statement.attachments !== undefined) {
+    hashingStatement.attachments = doc.statement.attachments;
+  }
+  if (doc.statement.timestamp !== doc.statement.stored) {
+    hashingStatement.timestamp = doc.statement.timestamp;
+  }
+
+  const hash = sha1(hashingStatement);
+  unorderedBulkOp.update({_id: doc._id}, { hash });
+}
+
+const migrateStatements = () => {
+  const batchSize = 10000;
+  const documentStream = highland(db.collection('statements').find({ hash: {$exists: false}}));
+
+  const handleDoc = Promise.promisify(migrateStatementDocument);
+  
+  const handler = documentStream.batch(batchSize).flatMap((documents) => {
+    const unorderedBulkOp = db.collection('statements').initializeUnorderedBulkOp();
+    documents.forEach((doc) => { 
+      return migrateStatementDocument(unorderedBulkOp, doc); 
+    });
+
+    return highland(unorderedBulkOp.execute());
+  }); 
+
+  const promise = new Promise( (resolve, reject) => {
+    hanlder.on('error', reject);
+    handler.apply(() => {
+      resolve();
+    });
+  });
+}
+
 module.exports = () => {
   logStep('Migrating local data');
   return getClients().then((clients) => {
@@ -99,9 +153,12 @@ module.exports = () => {
       ])
     );
 
+    const statementsMigration = migrateStatements();
+
     return Promise.all([
       orgMigrations,
       clientMigrations,
+      statementsMigration,
     ]);
   });
 };
