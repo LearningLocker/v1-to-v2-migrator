@@ -133,7 +133,7 @@ const migrateStatements = () => {
     return highland(unorderedBulkOp.execute());
   }); 
 
-  const promise = new Promise( (resolve, reject) => {
+  return new Promise( (resolve, reject) => {
     hanlder.on('error', reject);
     handler.apply(() => {
       resolve();
