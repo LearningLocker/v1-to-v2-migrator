@@ -127,6 +127,7 @@ const migrateStatements = () => {
     const handleDoc = Promise.promisify(migrateStatementDocument);
     
     const handler = documentStream.batch(batchSize).flatMap((documents) => {
+      console.log((new Date()).toISOString(), `Starting new batch of ${batchSize}`);
       const unorderedBulkOp = db.collection('statements').initializeUnorderedBulkOp();
       documents.forEach((doc) => { 
         return migrateStatementDocument(unorderedBulkOp, doc); 
