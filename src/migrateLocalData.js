@@ -138,7 +138,7 @@ const migrateStatements = () => {
     return new Promise( (resolve, reject) => {
       handler.on('error', reject);
       handler.apply(() => {
-        console.log('Finished migrating statement hashes');
+        console.log((new Date()).toISOString(), 'Finished migrating statement hashes');
         resolve();
       });
     });
