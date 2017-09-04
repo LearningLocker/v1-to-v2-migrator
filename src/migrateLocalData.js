@@ -4,7 +4,7 @@ const config = require('./config');
 const logStep = require('./logStep');
 const highland = require('highland');
 const _ = require('lodash');
-const hash = require('object-hash');
+const objectHash = require('object-hash');
 
 const mongoUrl = `mongodb://localhost:27017/${config.local.database}`;
 const connect = (log, fn) =>
@@ -114,29 +114,33 @@ const migrateStatementDocument = (unorderedBulkOp, doc) => {
     hashingStatement.timestamp = doc.statement.timestamp;
   }
 
-  const hash = sha1(hashingStatement);
-  unorderedBulkOp.update({_id: doc._id}, { hash });
+  const hash = objectHash.sha1(hashingStatement);
+  unorderedBulkOp.find({_id: doc._id}).updateOne({ $set: {hash} });
 }
 
 const migrateStatements = () => {
   const batchSize = 10000;
-  const documentStream = highland(db.collection('statements').find({ hash: {$exists: false}}));
 
-  const handleDoc = Promise.promisify(migrateStatementDocument);
-  
-  const handler = documentStream.batch(batchSize).flatMap((documents) => {
-    const unorderedBulkOp = db.collection('statements').initializeUnorderedBulkOp();
-    documents.forEach((doc) => { 
-      return migrateStatementDocument(unorderedBulkOp, doc); 
-    });
+  connect('Adding object hash to statements', db => {
+    const documentStream = highland(db.collection('statements').find({ hash: {$exists: false}}));
 
-    return highland(unorderedBulkOp.execute());
-  }); 
+    const handleDoc = Promise.promisify(migrateStatementDocument);
+    
+    const handler = documentStream.batch(batchSize).flatMap((documents) => {
+      const unorderedBulkOp = db.collection('statements').initializeUnorderedBulkOp();
+      documents.forEach((doc) => { 
+        return migrateStatementDocument(unorderedBulkOp, doc); 
+      });
 
-  return new Promise( (resolve, reject) => {
-    hanlder.on('error', reject);
-    handler.apply(() => {
-      resolve();
+      return highland(unorderedBulkOp.execute());
+    }); 
+
+    return new Promise( (resolve, reject) => {
+      handler.on('error', reject);
+      handler.apply(() => {
+        console.log('Finished migrating statement hashes');
+        resolve();
+      });
     });
   });
 }
