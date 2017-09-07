@@ -4,6 +4,7 @@ const writeTimestamp = require('./writeTimestamp');
 const dumpSourceData = require('./dumpSourceData');
 const restoreLocalData = require('./restoreLocalData');
 const migrateLocalData = require('./migrateLocalData');
+const migrateDocumentStorage = require('./migrateDocumentStorage');
 const dumpLocalData = require('./dumpLocalData');
 const restoreTargetData = require('./restoreTargetData');
 
@@ -13,6 +14,7 @@ const steps = [
   dumpSourceData,
   restoreLocalData,
   migrateLocalData,
+  migrateDocumentStorage,
   dumpLocalData,
   restoreTargetData,
 ];

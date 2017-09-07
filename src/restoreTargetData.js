@@ -7,7 +7,7 @@ const logStep = require('./logStep');
 const targetDb = config.target.database;
 
 module.exports = () => {
-  logStep('Restoring target data');
+  logStep('Restoring target data', true);
   const user = createCLIOption('-u', targetDb.user);
   const password = createCLIOption('-p', targetDb.password);
   const authDb = createCLIOption('--authenticationDatabase', targetDb.authenticationDatabase);
