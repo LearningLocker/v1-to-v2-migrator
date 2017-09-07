@@ -22,28 +22,33 @@ const createNewBaseDocObject = ({
   originalDoc,
   organisation
 }) => {
-  const extension = getExtension(doc);
+  const extension = getExtension(originalDoc);
 
-  return {
-    _id: originalDoc._id,
-    ...(originalDoc.contentType === 'application/json' ? { content: originalDoc.content } : {}),
-    contentType: originalDoc.contentType,
-    etag: generateEtag(),
-    extension,
-    lrs: originalDoc.lrs,
-    organisation,
-    ...(originalDoc.registration !== undefined ? { registration: originalDoc.registration } : {}),
-    updatedAt: originalDoc.updated_at,
-  };
+  return Object.assign(
+    {},
+    {
+      _id: originalDoc._id,
+      contentType: originalDoc.contentType,
+      etag: generateEtag(),
+      extension,
+      lrs: originalDoc.lrs,
+      organisation,
+      updatedAt: originalDoc.updated_at
+    },
+    originalDoc.contentType === 'application/json' ? { content: originalDoc.content } : {},
+    originalDoc.registration !== undefined ? { registration: originalDoc.registration } : {}
+  );
 };
 
 const migrateDocuments = ({
   documentType,
   newCollection,
   targetSubfolder,
-  docCreator
+  docCreator,
+  readSourceFile,
+  writeTargetFile
 }) => {
-  connect(`Getting ${documentType} documents from v1`, db => {
+  return connect(`Getting ${documentType} documents from v1`, db => {
     const stream = highland(db.collection('documentapi').find({
       documentType,
       migrated: { $exists: false }
@@ -64,17 +69,17 @@ const migrateDocuments = ({
         newDocumentsBulkOp.insert(newDoc);
 
         // update old doc to mark as migrated
-        oldDocumentsBulkOp.find({ _id: doc._id }).update({ migrated: true });
+        oldDocumentsBulkOp.find({ _id: doc._id }).updateOne({ $set: { migrated: true } });
 
 
         if (!isJSON && doc.content !== undefined) {
           // find the file in source location
-          const sourcePath = path([doc.lrs.toString(), 'documents', doc.content]);
+          const sourcePath = path.join(doc.lrs.toString(), 'documents', doc.content);
           const readStream = readSourceFile(sourcePath);
 
           // move file to target
           const targetFilename = `${doc._id.toString()}.${newDoc.extension}`;
-          const targetPath = path.join([doc.lrs.toString(), targetSubfolder, targetFilename]);
+          const targetPath = path.join(doc.lrs.toString(), targetSubfolder, targetFilename);
 
           // return file promise
           return writeTargetFile(targetPath, readStream);
@@ -85,28 +90,34 @@ const migrateDocuments = ({
 
       // execute the promises
       const oldDocumentsPromise = oldDocumentsBulkOp.execute();
-      const newDocumentsPromise = highland(newDocumentsBulkOp.execute();
+      const newDocumentsPromise = newDocumentsBulkOp.execute();
 
-
+      const promises = [oldDocumentsPromise, newDocumentsPromise].concat(filePromises);
       // return all the promises
-      return [
-        ...filePromises,
-        oldDocumentsPromise,
-        newDocumentsPromise,
-      ];
+      return highland(Promise.all(promises));
+    });
+
+    return new Promise((resolve, reject) => {
+      streamHandler.on('error', reject);
+      streamHandler.apply(() => {
+        logStep('Finished migrating documents');
+        resolve();
+      })
     });
   });
 };
 
 const migrateStates = ({ organisation, readSourceFile, writeTargetFile }) => {
   const docCreator = (doc) => {
-    return {
-      ...createNewBaseDocObject({ originalDoc: doc, organisation }),
-
-      activityId: doc.activityId,
-      agent: doc.agent,
-      stateId: doc.identId,
-    };
+    return Object.assign(
+      {},
+      {
+        activityId: doc.activityId,
+        agent: doc.agent,
+        stateId: doc.identId,
+      },
+      createNewBaseDocObject({ originalDoc: doc, organisation })
+    );
   };
 
   return migrateDocuments({
@@ -121,12 +132,15 @@ const migrateStates = ({ organisation, readSourceFile, writeTargetFile }) => {
 
 const migrateAgentProfiles = ({ organisation, readSourceFile, writeTargetFile }) => {
   const docCreator = (doc) => {
-    return {
-      ...createNewBaseDocObject({ originalDoc: doc, organisation }),
+    return Object.assign(
+      {},
+      {
 
-      agent: doc.agent,
-      profileId: doc.identId,
-    };
+        agent: doc.agent,
+        profileId: doc.identId,
+      },
+      createNewBaseDocObject({ originalDoc: doc, organisation })
+    );
   };
 
   return migrateDocuments({
@@ -141,12 +155,14 @@ const migrateAgentProfiles = ({ organisation, readSourceFile, writeTargetFile })
 
 const migrateActivityProfiles = ({ organisation, readSourceFile, writeTargetFile }) => {
   const docCreator = (doc) => {
-    return {
-      ...createNewBaseDocObject({ originalDoc: doc, organisation }),
-
-      activityId: doc.activityId,
-      profileId: doc.identId,
-    };
+    return Object.assign(
+      {},
+      {
+        activityId: doc.activityId,
+        profileId: doc.identId,
+      },
+      createNewBaseDocObject({ originalDoc: doc, organisation })
+    );
   };
 
   return migrateDocuments({

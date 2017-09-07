@@ -7,15 +7,20 @@ const logStep = require('./logStep');
 
 const storageType = config.target.documentStorage.storageType;
 
-const writeLocalFile = () => (path, stream) => {
+const writeLocalFile = () => (filepath, stream) => {
   const storageDir = config.target.documentStorage.local.storageDir;
-  const Key = path.join([storageDir, path]);
-  logStep(`Reading file from ${Key}`);
-  const writeStream = fs.createWriteStream(Key);
+  const Key = path.join(storageDir, filepath);
+  const fullDir = path.dirname(Key);
+
   return new Promise((resolve, reject) => {
-    stream.pipe(writeStream);
-    stream.on('end', resolve);
-    stream.on('error', reject);
+    fs.ensureDir(fullDir, (err) => {
+      if (err) return reject(err);
+      logStep(`Writing file to ${Key}`);
+      const writeStream = fs.createWriteStream(Key);
+      stream.pipe(writeStream);
+      stream.on('end', resolve);
+      stream.on('error', reject);
+    });
   });
 }
 
@@ -29,12 +34,12 @@ const writeS3File = () => {
     signatureVersion: 'v4',
     sslEnabled: true,
   });
-  return (path, stream) => {
+  return (filepath, stream) => {
     const subFolder = config.target.documentStorage.s3.subFolder;
     const Bucket = s3Config.bucketName;
-    const Key = path.join([subFolder, path]);
+    const Key = path.join(subFolder, filepath);
     const Body = stream;
-    logStep(`Writing file to ${key}`);
+    logStep(`Writing file to ${Key}`);
     return s3Client.upload({ Body, Bucket, Key }).promise();
   }
 }

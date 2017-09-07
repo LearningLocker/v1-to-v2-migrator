@@ -107,7 +107,7 @@ const migrateStatementDocument = (unorderedBulkOp, doc) => {
 const migrateStatements = () => {
   const batchSize = 10000;
 
-  connect('Adding object hash to statements', db => {
+  return connect('Adding object hash to statements', db => {
     const documentStream = highland(db.collection('statements').find({ hash: { $exists: false } }));
 
     const handleDoc = Promise.promisify(migrateStatementDocument);

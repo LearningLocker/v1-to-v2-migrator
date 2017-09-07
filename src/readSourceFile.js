@@ -2,13 +2,14 @@ const path = require('path');
 const fs = require('fs-extra');
 const S3 = require('aws-sdk/clients/s3');
 const config = require('./config');
+const logStep = require('./logStep');
 
 const storageType = config.source.documentStorage.storageType;
 
-const readLocalFile = () => (path) => {
+const readLocalFile = () => (filepath) => {
   const storageDir = config.source.documentStorage.local.storageDir;
-  const Key = path.join([storageDir, path]);
-  logStep(`Writing file to ${Key}`);
+  const Key = path.join(storageDir, filepath);
+  logStep(`Reading file from ${Key}`);
   return fs.createReadStream(Key);
 }
 
@@ -22,10 +23,10 @@ const readS3File = () => {
     signatureVersion: 'v4',
     sslEnabled: true,
   });
-  return (path) => {
+  return (filepath) => {
     const subFolder = config.source.documentStorage.s3.subFolder;
     const Bucket = s3Config.bucketName;
-    const Key = path.join([subFolder, path]);
+    const Key = path.join(subFolder, filepath);
     logStep(`Reading file from ${Key}`);
     return s3Client.getObject({ Bucket, Key }).createReadStream();
   }
