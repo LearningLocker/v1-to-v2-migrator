@@ -16,7 +16,7 @@ const dumpCollection = (collection, query = '{}') => {
 };
 
 module.exports = () => {
-  logStep('Dumping source data');
+  logStep('Dumping source data', true);
   const timestampFilter = config.timestamp ? `, stored: {$gte: new Date("${config.timestamp}")}` : '';
   const createdAtFilter = config.timestamp ? `, created_at: {$gte: new Date("${config.timestamp}")}` : '';
 

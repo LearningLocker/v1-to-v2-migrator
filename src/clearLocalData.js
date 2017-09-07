@@ -8,7 +8,7 @@ const rmdir = (dir) =>
   new Promise((resolve, reject) =>
     fs.remove(dir, (err) => {
       if (err) return reject(err);
-      console.log(`Deleted ${dir} directory`);
+      logStep(`Deleted ${dir} directory`);
       return resolve();
     })
   );
@@ -19,14 +19,14 @@ const dropDatabase = () =>
     mongodb.MongoClient.connect(mongoUrl, (err, db) => {
       if (err) return reject(err);
       resolve(db.dropDatabase().then(() => {
-        console.log(`Dropped ${config.local.database} database`);
+        logStep(`Dropped ${config.local.database} database`);
         db.close();
       }));
     });
   })
 
 module.exports = () => {
-  logStep('Clearing local data');
+  logStep('Clearing local data', true);
   return Promise.all([
     rmdir(config.local.sourceDumpLocation),
     rmdir(config.local.targetDumpLocation),

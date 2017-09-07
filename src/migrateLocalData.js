@@ -5,23 +5,9 @@ const logStep = require('./logStep');
 const highland = require('highland');
 const _ = require('lodash');
 const objectHash = require('object-hash');
+const migrateDocumentStorage = require('./migrateDocumentStorage');
+const connect = require('./localConnect');
 
-const mongoUrl = `mongodb://localhost:27017/${config.local.database}`;
-const connect = (log, fn) =>
-  mongodb.MongoClient.connect(mongoUrl, {
-    socketOptions: {
-      connectTimeoutMS: Number(config.local.connectTimeoutMS || 30000),
-      socketTimeoutMS: Number(config.local.socketTimeoutMS || 30000),
-    },
-  }).then((db) => {
-    console.log((new Date()).toISOString(), `Started ${log}`);
-    const result = fn(db);
-    result.then(() => {
-      db.close();
-      console.log((new Date()).toISOString(), `Finished ${log}`);
-    });
-    return result;
-  });
 
 const updateOrg = collection =>
   connect(`updating orgs for ${collection}`, db =>
@@ -64,19 +50,19 @@ const migrateScopes = (client) => {
 
 const migrateAuthority = client => {
   const wasNamed = (
-    !client.title || 
-    client.title.length === 0 || 
+    !client.title ||
+    client.title.length === 0 ||
     client.title === 'New Client'
-  );  
+  );
   const title = wasNamed ? `V1 Client - ${client.created_at}` : client.title;
-  
+
   return updateClient(client, {
     $set: {
       title,
       authority: (
         client.authority.constructor === Object ?
-        JSON.stringify(client.authority) :
-        client.authority
+          JSON.stringify(client.authority) :
+          client.authority
       ),
     }
   })
@@ -115,31 +101,31 @@ const migrateStatementDocument = (unorderedBulkOp, doc) => {
   }
 
   const hash = objectHash.sha1(hashingStatement);
-  unorderedBulkOp.find({_id: doc._id}).updateOne({ $set: {hash} });
+  unorderedBulkOp.find({ _id: doc._id }).updateOne({ $set: { hash } });
 }
 
 const migrateStatements = () => {
   const batchSize = 10000;
 
-  connect('Adding object hash to statements', db => {
-    const documentStream = highland(db.collection('statements').find({ hash: {$exists: false}}));
+  return connect('Adding object hash to statements', db => {
+    const documentStream = highland(db.collection('statements').find({ hash: { $exists: false } }));
 
     const handleDoc = Promise.promisify(migrateStatementDocument);
-    
+
     const handler = documentStream.batch(batchSize).flatMap((documents) => {
-      console.log((new Date()).toISOString(), `Starting new batch of ${batchSize}`);
+      logStep(`Starting new batch of ${batchSize}`);
       const unorderedBulkOp = db.collection('statements').initializeUnorderedBulkOp();
-      documents.forEach((doc) => { 
-        return migrateStatementDocument(unorderedBulkOp, doc); 
+      documents.forEach((doc) => {
+        return migrateStatementDocument(unorderedBulkOp, doc);
       });
 
       return highland(unorderedBulkOp.execute());
-    }); 
+    });
 
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       handler.on('error', reject);
       handler.apply(() => {
-        console.log((new Date()).toISOString(), 'Finished migrating statement hashes');
+        logStep('Finished migrating statement hashes');
         resolve();
       });
     });
@@ -147,7 +133,7 @@ const migrateStatements = () => {
 }
 
 module.exports = () => {
-  logStep('Migrating local data');
+  logStep('Migrating local data', true);
   return getClients().then((clients) => {
     const orgMigrations = migrateOrgs();
     const clientMigrations = clients.map(client =>

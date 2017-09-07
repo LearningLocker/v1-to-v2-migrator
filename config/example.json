@@ -1,32 +1,56 @@
 {
-  "target": {
-    "orgId": "",
-    "database": {
-      "authenticationDatabase": "",
-      "hosts": "",
-      "name": "",
-      "user": "",
-      "password": "",
-      "ssl": false,
-      "quiet": true
-    }
-  },
   "source": {
     "lrsId": "",
     "database": {
       "authenticationDatabase": "",
-      "hosts": "",
-      "name": "",
+      "hosts": "localhost:27017",
+      "name": "v1_source_database",
       "user": "",
       "password": "",
       "ssl": false
+    },
+    "documentStorage": {
+      "storageType": "local",
+      "local": {
+        "storageDir": ""
+      },
+      "s3": {
+        "bucketName": "",
+        "subFolder": "",
+        "region": "",
+        "accessKeyId": "",
+        "secretAccessKey": ""
+      }
     }
   },
   "local": {
-    "database": "",
+    "database": "ll_migrate_local",
     "sourceDumpLocation": "./dumps/source",
-    "targetDumpLocation": "./dumps/target",
-    "socketTimeoutMS": 300000,
-    "connectTimeoutMS": 300000
+    "targetDumpLocation": "./dumps/target"
+  },
+  "target": {
+    "orgId": "",
+    "database": {
+      "authenticationDatabase": "",
+      "hosts": "localhost:27017",
+      "name": "v2_target_database",
+      "user": "",
+      "password": "",
+      "ssl": false,
+      "quiet": true
+    },
+    "documentStorage": {
+      "storageType": "local",
+      "local": {
+        "storageDir": ""
+      },
+      "s3": {
+        "bucketName": "",
+        "subFolder": "",
+        "region": "",
+        "accessKeyId": "",
+        "secretAccessKey": ""
+      }
+    }
   }
 }
