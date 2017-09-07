@@ -4,7 +4,7 @@
     "database": {
       "authenticationDatabase": "",
       "hosts": "localhost:27017",
-      "name": "ll",
+      "name": "v1_source_database",
       "user": "",
       "password": "",
       "ssl": false
@@ -33,7 +33,7 @@
     "database": {
       "authenticationDatabase": "",
       "hosts": "localhost:27017",
-      "name": "ll",
+      "name": "v2_target_database",
       "user": "",
       "password": "",
       "ssl": false,
