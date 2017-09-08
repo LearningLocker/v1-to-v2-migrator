@@ -22,11 +22,9 @@ The script works in 4 broad phases:
 * Exporting and restoring data to a "target" database 
 * Copying and migrating local storage to a "target" folder"
 
-#### Backups
+**Backups of your v1 files and database should also be taken prior to using this script.** We cannot be held responsible for any loss, damage or accidental termination of your data.
 
-**Backups of your v1 files and database should also be taken prior to using this script.** We cannot be held responsible to any loss, damage or accidental termination of your data.
-
-**For that reason it is highly recomended that the source and target are all different Mongo databases, if not different hosts.** File storage should also be separate where possible.
+**For that reason it is highly recomended that the source and target are different Mongo databases, if not different hosts.** File storage should also be separate where possible.
 
 ### Requirements
 
