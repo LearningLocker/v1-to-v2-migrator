@@ -31,7 +31,9 @@ The script works in 4 broad phases:
 
 ### Requirements
 
-In order to run this script you will need an instance with:
+- A fully installed and configured v2 instance
+
+An instance with:
 - Node 6+
 - A running Mongo instance accesible at `127.0.0.1:27017` (no user credentials)
 - Access to both the source and target databases
@@ -52,7 +54,7 @@ The source points to the existing v1 database and files (attachement, documents)
 Param | Description
 --- | ---
 `source.lrs` | The `_id` of LRS you wish to migrate.<br><br>It is possible to filter to a single LRS if required . This is useful if you require migrating different LRSs to different v2 instances, or even different Organisations within the same v2 instance.<br><br>By default, if left blank, all LRSs will be migrated.
-`source.database` | **This section contains information about your source v1 database**
+`source.database` | **This section contains information about your source v1 database**<br><br>This information will be found in `app/config/.../database.php` of v1
 `source.database.hosts` | The host(s) of you source Mongo instance
 `source.database.name` | Database name
 `source.database.user` | User with read access to database
@@ -60,7 +62,7 @@ Param | Description
 `source.database.authenticationDatabase` | Mongo authentication database (if required)
 `source.database.ssl` | Boolean - use SSL for transfer
 `source.documentStorage.storageType` | Either `local` or `s3`<br><br>Determines where the script will look to find v1 Attachments and Documents
-`source.documentStorage.local.storageDir` | The absolute path to the storage directory
+`source.documentStorage.local.storageDir` | The absolute path to the v1 storage directory (aka `FS_LOCAL_ENDPOINT` in v1)
 `source.documentStorage.s3` | **This section contains information about your AWS S3 v1 storage**
 `source.documentStorage.s3.bucketName` | The S3 bucket 
 `source.documentStorage.s3.subFolder` | The subFolder within S3 (aka `FS_S3V3_PREFIX` in v1)
@@ -80,7 +82,24 @@ Param | Description
 #### Target
 
 
-
+Param | Description
+--- | ---
+`target.organisation` | The `_id` of the Organisation where all data will be inserted to.<br><br>This can be found in your newly setup v2 database, or simply by looking at the URL of an organisation when you have accessed it in the v2 GUI.
+`target.database` | **This section contains information about your target v1 database**
+`target.database.hosts` | The host(s) of you target Mongo instance
+`target.database.name` | Database name
+`target.database.user` | User with read access to database
+`target.database.password` | User password
+`target.database.authenticationDatabase` | Mongo authentication database (if required)
+`target.database.ssl` | Boolean - use SSL for transfer
+`target.documentStorage.storageType` | Either `local` or `s3`<br><br>Determines where the script will push Attachments and Documents for v2
+`target.documentStorage.local.storageDir` | The absolute path to the target storage directory
+`target.documentStorage.s3` | **This section contains information about your AWS S3 v2 storage**
+`target.documentStorage.s3.bucketName` | The S3 bucket 
+`target.documentStorage.s3.subFolder` | The subFolder within S3
+`target.documentStorage.s3.region` | The S3 region
+`target.documentStorage.s3.accessKeyId` | AWS access key ID
+`target.documentStorage.s3.secretAccessKey` | AWS secret access key
 
 
 
@@ -95,7 +114,7 @@ Param | Description
   ```
   node cli/dist/server updateStatementCount
   nohup node cli/dist/server batchJobs -o ORG_ID -j querybuildercache &
-  nohup node cli/dist/server batchJobs -o ORG_ID -j personas -b 10 &
+  nohup node cli/dist/server batchJobs -o ORG_ID -j personas -b 100 &
   ```
 
 ### Migratr Steps
