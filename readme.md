@@ -13,24 +13,27 @@ Once the migration has succesffully been run, only the URL of Learning Locker wi
 
 A timestamp is appended to the config after the initial run; subsequent runs of the migration script will then also take any statements that had been inserted into v1 since this date, allowing for any "missed" statements to be retrieved and migrated whilst switching over the Learning Locker URL. This process can be repeated as many times as required.
 
+## Backups
+
+**Backups of your v1 files and database should also be taken prior to using this script.** We cannot be held responsible for any loss, damage or accidental termination of your data.
+
+**For that reason it is highly recomended that the source and target are different Mongo databases, if not different hosts.** File storage should also be separated where possible.
+
 ## Basic usage:
 
 The script works in 4 broad phases:
 
-* Exporting required database records from your "source" v1 LRS
-* Restoring to a "local" Mongo instance, where migrations will be perfomed on the data
-* Exporting and restoring data to a "target" database 
-* Copying and migrating local storage to a "target" folder"
+* Exporting required database records from your "source" v1 LRS using `mongodump`
+* Restoring to a "local" Mongo instance using `mongorestore`, where migrations will be perfomed on the data
+* Exporting and restoring data to a "target" database using `mongodump` and `mongorestore`
+* Copying and migrating local file storage to a "target" folder"
 
-**Backups of your v1 files and database should also be taken prior to using this script.** We cannot be held responsible for any loss, damage or accidental termination of your data.
-
-**For that reason it is highly recomended that the source and target are different Mongo databases, if not different hosts.** File storage should also be separate where possible.
 
 ### Requirements
 
 In order to run this script you will need an instance with:
 - Node 6+
-- A running Mongo instance on 127.0.0.1:27017
+- A running Mongo instance accesible at `127.0.0.1:27017` (no user credentials)
 - Access to both the source and target databases
 
 ### Installation:
@@ -70,9 +73,12 @@ Param | Description
 
 Param | Description
 --- | ---
-`local.database` | The name of the database on the local instance where data is restored, migrated and exported from before being pushed to the target DB.
+`local.database` | Database name on the local `127.0.0.1:27017` instance.<br><br>Data is restored, migrated and exported from this database and will be cleared down with subsequent runs of the scripts.
+`local.sourceDumpLocation` | Absolute or relative directory to export source data to
+`local.targetDumpLocation` | Absolute or relative directory to export migrated data to prior to target restoration
 
 #### Target
+
 
 
 
