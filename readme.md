@@ -156,10 +156,10 @@ node cli/dist/server updateStatementCount
 
 Populate the Query Builder:
 ```
-node cli/dist/server batchJobs -o ORG_ID -j querybuildercache
+node cli/dist/server batchJobs -j querybuildercache
 ```
 
 Create "personas" for each agent:
 ```
-node cli/dist/server batchJobs -o ORG_ID -j personas -b 100
+node cli/dist/server batchJobs -j personas -b 1000
 ```
