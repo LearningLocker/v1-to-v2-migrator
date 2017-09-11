@@ -15,20 +15,26 @@ const dumpCollection = (collection, query = '{}') => {
   return exec(`mongodump ${ssl} --host ${sourceDb.hosts} --db ${sourceDb.name} ${user} ${password} ${authDb} --collection ${collection} --query '${query}' --gzip --out ${config.local.sourceDumpLocation}`);
 };
 
+const createQueryFilter = (filters) => {
+  return `{${filters.join(', ')}}`;
+};
+
 module.exports = () => {
   logStep('Dumping source data', true);
-  const timestampFilter = config.timestamp ? `, stored: {$gte: new Date("${config.timestamp}")}` : '';
-  const createdAtFilter = config.timestamp ? `, created_at: {$gte: new Date("${config.timestamp}")}` : '';
+  const timestampFilter = config.timestamp ? [`stored: {$gte: new Date("${config.timestamp}")}`] : [];
+  const createdAtFilter = config.timestamp ? [`created_at: {$gte: new Date("${config.timestamp}")}`] : [];
+  const lrsIDFilter = config.source.lrsId ? [`lrs_id: ObjectId("${config.source.lrsId}")`] : [];
+  const lrsFilter = config.source.lrsId ? [`_id: ObjectId("${config.source.lrsId}")`] : [];
 
-  const statementFilter = `{active: true, lrs_id: ObjectId("${config.source.lrsId}")${timestampFilter}}`
-  const documentFilter = `{lrs_id: ObjectId("${config.source.lrsId}")${createdAtFilter}}`;
-  const clientFilter = `{lrs_id: ObjectId("${config.source.lrsId}")}`;
-  const lrsFilter = `{_id: ObjectId("${config.source.lrsId}")}`;
+  const statementFilter = createQueryFilter(['active: true'].concat(lrsIDFilter, timestampFilter));
+  const documentFilter = createQueryFilter(lrsIDFilter.concat(createdAtFilter));
+  const clientFilter = createQueryFilter(lrsIDFilter);
+  const storeFilter = createQueryFilter(lrsFilter);
 
   return Promise.all([
     dumpCollection('statements', statementFilter),
     dumpCollection('documentapi', documentFilter),
     dumpCollection('client', clientFilter),
-    dumpCollection('lrs', lrsFilter),
+    dumpCollection('lrs', storeFilter),
   ]);
 };

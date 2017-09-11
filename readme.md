@@ -1,5 +1,5 @@
 # LL Migratr
-> Migrates V1 statements, clients, and stores to a V2 database.
+> Migrates v1 statements, clients, and stores to a v2 instance
 
 ## Migrating from v1 to v2
 
@@ -19,17 +19,17 @@ A timestamp is appended to the config after the initial run; subsequent runs of 
 
 **For that reason it is highly recomended that the source and target are different Mongo databases, if not different hosts.** File storage should also be separated where possible.
 
-## Basic usage:
+## Basic usage
 
 The script works in 4 broad phases:
 
 * Exporting required database records from your "source" v1 LRS using `mongodump`
 * Restoring to a "local" Mongo instance using `mongorestore`, where migrations will be perfomed on the data
 * Exporting and restoring data to a "target" database using `mongodump` and `mongorestore`
-* Copying and migrating local file storage to a "target" folder"
+* Copying and migrating local file storage to a "target" folder - note that this stage does not have a "local" step, and will migrate your files directly from "source" to "target"
 
 
-### Requirements
+## Requirements
 
 - A fully installed and configured v2 instance
 
@@ -38,16 +38,17 @@ An instance with:
 - A running Mongo instance accesible at `127.0.0.1:27017` (no user credentials)
 - Access to both the source and target databases
 
-### Installation:
+## Installation
+
 1. Clone the repository `git clone git@github.com:ht2/ll-migratr.git`.
 1. Install dependencies `npm install`.
 1. Change your permissions `sudo chmod 775 ./bin/migrater`.
 
-### Configuration:
+## Configuration
 
 Copy the config/example.json into a new file. The config file is broken into 3 areas:
 
-#### Source
+### Source
 
 The source points to the existing v1 database and files (attachement, documents). 
 
@@ -71,7 +72,7 @@ Param | Description
 `source.documentStorage.s3.secretAccessKey` | AWS secret access key
 
 
-#### Local
+### Local
 
 Param | Description
 --- | ---
@@ -79,7 +80,7 @@ Param | Description
 `local.sourceDumpLocation` | Absolute or relative directory to export source data to
 `local.targetDumpLocation` | Absolute or relative directory to export migrated data to prior to target restoration
 
-#### Target
+### Target
 
 
 Param | Description
@@ -101,39 +102,63 @@ Param | Description
 `target.documentStorage.s3.accessKeyId` | AWS access key ID
 `target.documentStorage.s3.secretAccessKey` | AWS secret access key
 
+## Command
 
+To run the process, execute the following:
 
-### Migratr Process
-1. Create an organisation in the V2 instance (use the organisation's ID in the config file).
-1. Find the LRS ID in the V1 instance for use in the config file.
-1. Setup your `config/foobar.json` file from the `config/example.json` file.
-1. Run `./bin/migrater config.json 1 6` in this directory.
-1. Check migrated data in Mongo.
-1. Run `./bin/migrater config.json 7 8` in this directory.
-1. Migrate data on target database.
-  ```
-  node cli/dist/server updateStatementCount
-  nohup node cli/dist/server batchJobs -o ORG_ID -j querybuildercache &
-  nohup node cli/dist/server batchJobs -o ORG_ID -j personas -b 100 &
-  ```
-
-### Migratr Steps
-1. writeTimestamp
-1. clearLocalData
-1. dumpSourceData
-1. restoreLocalData
-1. migrateLocalData
-1. migrateDocumentStorage
-1. dumpLocalData
-1. restoreTargetData
-
-### Command
-Format
 ```
 ./bin/migrater <config_file_location> [start_step [end_step]]
 ```
+`config_file_location`: A relative or absolute path to your config file
 
-Example
+`start`: The first "step" you wish to run (defaults to 1)
+
+`end`: The last "step" you wish to run (defaults to 8)
+
+
+### Example
 ```
 ./bin/migrater config/ht2.json 1 5
+```
+
+
+### Steps
+
+1. `writeTimestamp` - Write a current timestamp to the config
+1. `clearLocalData` - Clear down existing "local" database and database mongodump/mongorestores
+1. `dumpSourceData` - mongodump all matching data from the "source"
+1. `restoreLocalData` - restore the dumped data to "local"
+1. `migrateLocalData` - locally migrate from v1 to v2
+1. `migrateDocumentStorage` - Migrate documents (files) directly from "local" to "target" (**no local step provided here**)
+1. `dumpLocalData` - Dump the locally migrated data
+1. `restoreTargetData` - Restore migrated data into target
+
+
+## Full process:
+
+1. Copy the `config/example.json` file into a new config file
+1. Create an organisation in your V2 instance - enter the organisation's `_id` into the config
+1. (optional) Find the LRS `_id` in the V1 instance for use in the config file, or leave blank to copy all LRSs
+1. Run `node ./bin/migrater config/YOURCONFIG.json 1 8` in this directory.
+
+
+## Final steps
+
+Because v2 is setup to provide extra work on statements as they are consumed through the LRS, your new data will have not run this this process.
+
+Instead, you will need to run these commands on your v2 instance at the root of where v2 is installed
+
+Update the store count on each LRS:
+```
+node cli/dist/server updateStatementCount 
+```
+
+Populate the Query Builder:
+```
+node cli/dist/server batchJobs -o ORG_ID -j querybuildercache
+```
+
+Create "personas" for each agent:
+```
+node cli/dist/server batchJobs -o ORG_ID -j personas -b 100
 ```
