@@ -56,7 +56,7 @@ const migrateDocuments = ({
     }));
 
     const streamHandler = stream.batch(batchSize).flatMap((documents) => {
-      logStep(`Starting new batch of ${batchSize}`);
+      logStep(`Starting new statements batch of ${batchSize}`);
 
       const oldDocumentsBulkOp = db.collection('documentapi').initializeUnorderedBulkOp();
       const newDocumentsBulkOp = db.collection(newCollection).initializeUnorderedBulkOp();
@@ -189,6 +189,6 @@ module.exports = () => {
   return Promise.all([
     migrateStates({ organisation, readSourceFile, writeTargetFile }),
     migrateActivityProfiles({ organisation, readSourceFile, writeTargetFile }),
-    migrateAgentProfiles({ organisation, readSourceFile, writeTargetFile })
+    migrateAgentProfiles({ organisation, readSourceFile, writeTargetFile }),
   ]);
 };

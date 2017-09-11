@@ -129,7 +129,8 @@ To run the process, execute the following:
 1. `dumpSourceData` - mongodump all matching data from the "source"
 1. `restoreLocalData` - restore the dumped data to "local"
 1. `migrateLocalData` - locally migrate from v1 to v2
-1. `migrateDocumentStorage` - Migrate documents (files) directly from "local" to "target" (**no local step provided here**)
+1. `migrateDocumentStorage` - Migrate state documents (files) directly from "local" to "target" (**no local step provided here**)
+1. `migrateAttachmentStorage` - Migrate statement attachment files directly from "local" to "target" (**no local step provided here**)
 1. `dumpLocalData` - Dump the locally migrated data
 1. `restoreTargetData` - Restore migrated data into target
 
@@ -139,7 +140,7 @@ To run the process, execute the following:
 1. Copy the `config/example.json` file into a new config file
 1. Create an organisation in your V2 instance - enter the organisation's `_id` into the config
 1. (optional) Find the LRS `_id` in the V1 instance for use in the config file, or leave blank to copy all LRSs
-1. Run `node ./bin/migrater config/YOURCONFIG.json 1 8` in this directory.
+1. Run `node ./bin/migrater config/YOURCONFIG.json` in this directory.
 
 
 ## Final steps

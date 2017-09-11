@@ -5,6 +5,7 @@ const dumpSourceData = require('./dumpSourceData');
 const restoreLocalData = require('./restoreLocalData');
 const migrateLocalData = require('./migrateLocalData');
 const migrateDocumentStorage = require('./migrateDocumentStorage');
+const migrateAttachmentStorage = require('./migrateAttachmentStorage');
 const dumpLocalData = require('./dumpLocalData');
 const restoreTargetData = require('./restoreTargetData');
 
@@ -15,6 +16,7 @@ const steps = [
   restoreLocalData,
   migrateLocalData,
   migrateDocumentStorage,
+  migrateAttachmentStorage,
   dumpLocalData,
   restoreTargetData,
 ];
