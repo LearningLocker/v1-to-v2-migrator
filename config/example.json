@@ -2,11 +2,11 @@
   "source": {
     "lrsId": "",
     "database": {
-      "authenticationDatabase": "",
       "hosts": "localhost:27017",
       "name": "v1_source_database",
       "user": "",
       "password": "",
+      "authenticationDatabase": "",
       "ssl": false
     },
     "documentStorage": {
@@ -31,11 +31,11 @@
   "target": {
     "orgId": "",
     "database": {
-      "authenticationDatabase": "",
       "hosts": "localhost:27017",
       "name": "v2_target_database",
       "user": "",
       "password": "",
+      "authenticationDatabase": "",
       "ssl": false,
       "quiet": true
     },

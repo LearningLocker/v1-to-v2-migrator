@@ -1,5 +1,6 @@
 const Promise = require('bluebird');
 const path = require('path');
+const mongodb = require('mongodb');
 const highland = require('highland');
 const exec = require('./exec');
 const config = require('./config');
@@ -32,7 +33,7 @@ const createNewBaseDocObject = ({
       etag: generateEtag(),
       extension,
       lrs: originalDoc.lrs,
-      organisation,
+      organisation: mongodb.ObjectID(organisation),
       updatedAt: originalDoc.updated_at
     },
     originalDoc.contentType === 'application/json' ? { content: originalDoc.content } : {},
