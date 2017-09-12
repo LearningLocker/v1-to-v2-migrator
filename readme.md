@@ -13,11 +13,13 @@ Once the migration has succesffully been run, only the URL of Learning Locker wi
 
 A timestamp is appended to the config after the initial run; subsequent runs of the migration script will then also take any statements that had been inserted into v1 since this date, allowing for any "missed" statements to be retrieved and migrated whilst switching over the Learning Locker URL. This process can be repeated as many times as required.
 
+
 ## Backups
 
 **Backups of your v1 files and database should also be taken prior to using this script.** We cannot be held responsible for any loss, damage or accidental termination of your data.
 
 **For that reason it is highly recomended that the source and target are different Mongo databases, if not different hosts.** File storage should also be separated where possible.
+
 
 ## Basic usage
 
@@ -33,10 +35,12 @@ The script works in 4 broad phases:
 
 - A fully installed and configured v2 instance
 
+
 An instance with:
-- Node 6+
+- Node 6.*
 - A running Mongo instance accesible at `127.0.0.1:27017` (no user credentials)
 - Access to both the source and target databases
+
 
 ## Installation
 
@@ -44,32 +48,34 @@ An instance with:
 1. Install dependencies `npm install`.
 1. Change your permissions `sudo chmod 775 ./bin/migrater`.
 
+
 ## Configuration
 
 Copy the config/example.json into a new file. The config file is broken into 3 areas:
+
 
 ### Source
 
 The source points to the existing v1 database and files (attachement, documents). 
 
-Param | Description
---- | ---
-`source.lrs` | The `_id` of LRS you wish to migrate.<br><br>It is possible to filter to a single LRS if required . This is useful if you require migrating different LRSs to different v2 instances, or even different Organisations within the same v2 instance.<br><br>By default, if left blank, all LRSs will be migrated.
-`source.database` | **This section contains information about your source v1 database**<br><br>This information will be found in `app/config/.../database.php` of v1
-`source.database.hosts` | The host(s) of you source Mongo instance
-`source.database.name` | Database name
-`source.database.user` | User with read access to database
-`source.database.password` | User password
-`source.database.authenticationDatabase` | Mongo authentication database (if required)
-`source.database.ssl` | Boolean - use SSL for transfer
-`source.documentStorage.storageType` | Either `local` or `s3`<br><br>Determines where the script will look to find v1 Attachments and Documents
-`source.documentStorage.local.storageDir` | The absolute path to the v1 storage directory (aka `FS_LOCAL_ENDPOINT` in v1)
-`source.documentStorage.s3` | **This section contains information about your AWS S3 v1 storage**
-`source.documentStorage.s3.bucketName` | The S3 bucket 
-`source.documentStorage.s3.subFolder` | The subFolder within S3 (aka `FS_S3V3_PREFIX` in v1)
-`source.documentStorage.s3.region` | The S3 region
-`source.documentStorage.s3.accessKeyId` | AWS access key ID
-`source.documentStorage.s3.secretAccessKey` | AWS secret access key
+Param | Description | v1 parameter
+--- | --- | ---
+`source.lrs` | The `_id` of LRS you wish to migrate.<br><br>It is possible to filter to a single LRS if required . This is useful if you require migrating different LRSs to different v2 instances, or even different Organisations within the same v2 instance.<br><br>By default, if left blank, all LRSs will be migrated. | The lrs's `_id`
+`source.database` | **This section contains information about your source v1 database** | `app/config/.../database.php`
+`source.database.hosts` | The host(s) of you source Mongo instance | `host`
+`source.database.name` | Database name | `database`
+`source.database.user` | User with read access to database | `username`
+`source.database.password` | Password | `password
+`source.database.authenticationDatabase` | Mongo authentication database (if required) | `options.authenticationDatabase`
+`source.database.ssl` | Boolean - use SSL for transfer | `options.ssl`
+`source.documentStorage.storageType` | Either `local` or `s3`<br><br>Determines where the script will look to find v1 Attachments and Documents | `FS_REPO`
+`source.documentStorage.local.storageDir` | The absolute path to the v1 storage directory | `FS_LOCAL_ENDPOINT`
+`source.documentStorage.s3` | **This section contains information about your AWS S3 v1 storage** | 
+`source.documentStorage.s3.bucketName` | The S3 bucket | 'FS_S3V3_BUCKET'
+`source.documentStorage.s3.subFolder` | The subFolder within S3 | 'FS_S3V3_PREFIX'
+`source.documentStorage.s3.region` | The S3 region | `FS_S3V3_REGION`
+`source.documentStorage.s3.accessKeyId` | AWS access key ID | `FS_S3V3_ACCESS_KEY`
+`source.documentStorage.s3.secretAccessKey` | AWS secret access key | `FS_S3V3_SECRET`
 
 
 ### Local
@@ -77,11 +83,11 @@ Param | Description
 Param | Description
 --- | ---
 `local.database` | Database name on the local `127.0.0.1:27017` instance.<br><br>Data is restored, migrated and exported from this database and will be cleared down with subsequent runs of the scripts.
-`local.sourceDumpLocation` | Absolute or relative directory to export source data to
-`local.targetDumpLocation` | Absolute or relative directory to export migrated data to prior to target restoration
+`local.sourceDumpLocation` | Absolute or relative directory to export source mongodump to
+`local.targetDumpLocation` | Absolute or relative directory to export migrated mongodump, prior to target restoration (mongorestore)
+
 
 ### Target
-
 
 Param | Description
 --- | ---
@@ -101,6 +107,7 @@ Param | Description
 `target.documentStorage.s3.region` | The S3 region
 `target.documentStorage.s3.accessKeyId` | AWS access key ID
 `target.documentStorage.s3.secretAccessKey` | AWS secret access key
+
 
 ## Command
 
@@ -145,7 +152,7 @@ To run the process, execute the following:
 
 ## Final steps
 
-Because v2 is setup to provide extra work on statements as they are consumed through the LRS, your new data will have not run this this process.
+Learning Locker's workers are setup to provide extra processing to statements as they are consumed through the LRS.  Your newly migrated data will have not have had these processes applied. You may run the following to provide that functionality.
 
 Instead, you will need to run these commands on your v2 instance at the root of where v2 is installed
 
@@ -154,10 +161,14 @@ Update the store count on each LRS:
 node cli/dist/server updateStatementCount 
 ```
 
+#### Query Builder Caches:
+
 Populate the Query Builder:
 ```
 node cli/dist/server batchJobs -j querybuildercache
 ```
+
+Persona processing:
 
 Create "personas" for each agent:
 ```
