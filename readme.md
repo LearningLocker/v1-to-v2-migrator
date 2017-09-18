@@ -5,6 +5,8 @@
 
 This tool will take a Learning Locker v1 database and migrate the LRS, Clients and xAPI records (Statements, Attachments, Documents) into a v2 database format. 
 
+Please note that you will need to ensure your v1 instance is upgraded to **at least v1.12.0 or later**.
+
 Users, Reports and Exports are not migrated as part of this process. You will need to install and create your v2 Organisation before running this migration (please see documentation) - this also sets up your initial admin user who will be able to invite subsequent users.
 
 All client credentials attached to migrated LRS's are copied during this migration. 
