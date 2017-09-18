@@ -44,7 +44,7 @@ An instance with:
 
 ## Installation
 
-1. Clone the repository `git clone git@github.com:ht2/ll-migratr.git`.
+1. Clone the repository `git clone git@github.com:LearningLocker/v1-to-v2-migrator.git`.
 1. Install dependencies `npm install`.
 1. Change your permissions `sudo chmod 775 ./bin/migrater`.
 
