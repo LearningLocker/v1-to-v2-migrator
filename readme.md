@@ -1,4 +1,4 @@
-# LL Migratr
+# Learning Locker v1 to v2 Migrator
 > Migrates v1 statements, clients, and stores to a v2 instance
 
 ## Migrating from v1 to v2
