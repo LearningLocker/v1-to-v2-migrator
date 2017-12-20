@@ -1,6 +1,5 @@
 const Promise = require('bluebird');
 const path = require('path');
-const async = require('async');
 const highland = require('highland');
 const config = require('./config');
 const logStep = require('./logStep');
