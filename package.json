@@ -4,6 +4,7 @@
   "description": "Migrate from LLV1 to LLV2",
   "main": "src/index.js",
   "dependencies": {
+    "@learninglocker/xapi-statements": "^5.0.14",
     "aws-sdk": "^2.110.0",
     "bluebird": "^3.4.7",
     "fs-extra": "^2.1.2",

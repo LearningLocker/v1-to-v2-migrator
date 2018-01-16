@@ -7,7 +7,12 @@ const _ = require('lodash');
 const objectHash = require('object-hash');
 const migrateDocumentStorage = require('./migrateDocumentStorage');
 const connect = require('./localConnect');
+const constants = require('./constants');
 
+const getActivitiesFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getActivitiesFromStatement');
+const getAgentsFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getAgentsFromStatement');
+const getRegistrationsFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getRegistrationsFromStatement');
+const getVerbsFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getVerbsFromStatement');
 
 const updateOrg = collection =>
   connect(`updating orgs for ${collection}`, db =>
@@ -76,15 +81,62 @@ const getClients = () =>
     })
   );
 
-const migrateStatementDocument = (unorderedBulkOp, doc) => {
-  const stored = doc.statement.stored;
-  const timestamp = doc.statement.timestamp;
+const defaultAuthority = {
+  mbox: 'mailto:hello@learninglocker.net',
+  name: 'New Client',
+  objectType: 'Agent',
+};
 
+const getAuthorityUpdate = (doc) => {
+  if (!_.has(doc, ['statement', 'authority'])) {
+    doc.statement.authority = defaultAuthority;
+    return { 'statement.authority': defaultAuthority };
+  }
+  return {};
+}
+
+const getContextUpdate = (doc) => {
+  const update = {};
+  if (_.has(doc, ['statement', 'context', 'contextActivities'])) {
+    _.forIn(doc.statement.context.contextActivities, (value, key) => {
+      switch (key) {
+        default:
+          break;
+        case 'grouping':
+        case 'parent':
+        case 'category':
+        case 'other':
+          if (!Array.isArray(value)) {
+            _.set(doc, `statement.context.contextActivities.${key}`, [value]);
+            update[`statement.context.contextActivities.${key}`] = [value];
+          }
+      }
+    });
+  }
+  return update;
+};
+
+const getQueriables = (doc) => {
+  const statement = doc.statement;
+  const refs = doc.refs ? doc.refs : [];
+
+  const statements = [statement, ...refs];
+  return {
+    activities: _.union(...statements.map(getActivitiesFromStatement.getActivitiesFromStatement)),
+    agents: _.union(...statements.map(getAgentsFromStatement.getAgentsFromStatement)),
+    registrations: _.union(...statements.map(getRegistrationsFromStatement.getRegistrationsFromStatement)),
+    relatedActivities: _.union(...statements.map(getActivitiesFromStatement.getRelatedActivitiesFromStatement)),
+    relatedAgents: _.union(...statements.map(getAgentsFromStatement.getRelatedAgentsFromStatement)),
+    verbs: _.union(...statements.map(getVerbsFromStatement.getVerbsFromStatement)),
+  };
+}
+
+const hashStatement = (doc) => {
   const hashingStatement = {
-    id: doc.statement.id,
     actor: doc.statement.actor,
-    verb: doc.statement.verb,
+    id: doc.statement.id,
     object: doc.statement.object,
+    verb: doc.statement.verb,
   };
 
   if (doc.statement.context !== undefined) {
@@ -100,8 +152,36 @@ const migrateStatementDocument = (unorderedBulkOp, doc) => {
     hashingStatement.timestamp = doc.statement.timestamp;
   }
 
-  const hash = objectHash.sha1(hashingStatement);
-  unorderedBulkOp.find({ _id: doc._id }).updateOne({ $set: { hash } });
+  return objectHash(hashingStatement);
+};
+
+const migrateStatementDocumentUpdate = (doc) => {
+  const authorityUpdate = getAuthorityUpdate(doc);
+  const contextUpdate = getContextUpdate(doc);
+  const queriables = getQueriables(doc);
+  const hash = hashStatement(doc);
+
+  return {
+    $addToSet: {
+      activities: { $each: queriables.activities },
+      agents: { $each: queriables.agents },
+      registrations: { $each: queriables.registrations },
+      relatedActivities: { $each: queriables.relatedActivities },
+      relatedAgents: { $each: queriables.relatedAgents },
+      verbs: { $each: queriables.verbs },
+    },
+    $set: {
+      hash,
+      rev: constants.TARGET_VERSION,
+      ...contextUpdate,
+      ...authorityUpdate,
+    },
+  };
+};
+
+const migrateStatementDocument = (unorderedBulkOp, doc) => {
+  const update = migrateStatementDocumentUpdate(doc);
+  unorderedBulkOp.find({ _id: doc._id }).updateOne(update);
 }
 
 const migrateStatements = () => {
