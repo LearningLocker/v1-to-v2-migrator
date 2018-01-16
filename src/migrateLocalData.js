@@ -7,12 +7,13 @@ const _ = require('lodash');
 const objectHash = require('object-hash');
 const migrateDocumentStorage = require('./migrateDocumentStorage');
 const connect = require('./localConnect');
-const constants = require('./constants');
 
 const getActivitiesFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getActivitiesFromStatement');
 const getAgentsFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getAgentsFromStatement');
 const getRegistrationsFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getRegistrationsFromStatement');
 const getVerbsFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getVerbsFromStatement');
+
+const TARGET_VERSION = 2.1;
 
 const updateOrg = collection =>
   connect(`updating orgs for ${collection}`, db =>
