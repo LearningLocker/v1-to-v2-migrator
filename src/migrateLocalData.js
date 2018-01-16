@@ -13,7 +13,7 @@ const getAgentsFromStatement = require('@learninglocker/xapi-statements/dist/ser
 const getRegistrationsFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getRegistrationsFromStatement');
 const getVerbsFromStatement = require('@learninglocker/xapi-statements/dist/service/storeStatements/queriables/getVerbsFromStatement');
 
-const TARGET_VERSION = 2.1;
+const REVISION = 1;
 
 const updateOrg = collection =>
   connect(`updating orgs for ${collection}`, db =>
@@ -121,14 +121,30 @@ const getQueriables = (doc) => {
   const statement = doc.statement;
   const refs = doc.refs ? doc.refs : [];
 
+  const activities = [];
+  const agents = [];
+  const registrations = [];
+  const relatedActivities = [];
+  const relatedAgents = [];
+  const verbs = [];
+
   const statements = [statement, ...refs];
+  statements.forEach(statement => {
+    activities.push(getActivitiesFromStatement.getActivitiesFromStatement(statement));
+    agents.push(getAgentsFromStatement.getAgentsFromStatement(statement));
+    registrations.push(getRegistrationsFromStatement.default(statement));
+    relatedActivities.push(getActivitiesFromStatement.getRelatedActivitiesFromStatement(statement));
+    relatedAgents.push(getAgentsFromStatement.getRelatedAgentsFromStatement(statement));
+    verbs.push(getVerbsFromStatement.default(statement));
+  });
+
   return {
-    activities: _.union(...statements.map(getActivitiesFromStatement.getActivitiesFromStatement)),
-    agents: _.union(...statements.map(getAgentsFromStatement.getAgentsFromStatement)),
-    registrations: _.union(...statements.map(getRegistrationsFromStatement.getRegistrationsFromStatement)),
-    relatedActivities: _.union(...statements.map(getActivitiesFromStatement.getRelatedActivitiesFromStatement)),
-    relatedAgents: _.union(...statements.map(getAgentsFromStatement.getRelatedAgentsFromStatement)),
-    verbs: _.union(...statements.map(getVerbsFromStatement.getVerbsFromStatement)),
+    activities: _.union.apply(null, activities),
+    agents: _.union.apply(null, agents),
+    registrations: _.union.apply(null, registrations),
+    relatedActivities: _.union.apply(null, relatedActivities),
+    relatedAgents: _.union.apply(null, relatedAgents),
+    verbs: _.union.apply(null, verbs),
   };
 }
 
@@ -162,7 +178,7 @@ const migrateStatementDocumentUpdate = (doc) => {
   const queriables = getQueriables(doc);
   const hash = hashStatement(doc);
 
-  return {
+  const update = {
     $addToSet: {
       activities: { $each: queriables.activities },
       agents: { $each: queriables.agents },
@@ -173,11 +189,14 @@ const migrateStatementDocumentUpdate = (doc) => {
     },
     $set: {
       hash,
-      rev: constants.TARGET_VERSION,
-      ...contextUpdate,
-      ...authorityUpdate,
+      rev: REVISION,
     },
   };
+
+  Object.assign(update.$set, contextUpdate);
+  Object.assign(update.$set, authorityUpdate);
+
+  return update;
 };
 
 const migrateStatementDocument = (unorderedBulkOp, doc) => {
