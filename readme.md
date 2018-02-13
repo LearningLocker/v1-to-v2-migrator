@@ -93,7 +93,7 @@ Param | Description
 
 Param | Description
 --- | ---
-`target.organisation` | The `_id` of the Organisation where all data will be inserted to.<br><br>This can be found in your newly setup v2 database, or simply by looking at the URL of an organisation when you have accessed it in the v2 GUI.
+`target.orgId` | The `_id` of the Organisation where all data will be inserted to.<br><br>This can be found in your newly setup v2 database, or simply by looking at the URL of an organisation when you have accessed it in the v2 GUI.
 `target.database` | **This section contains information about your target v1 database**
 `target.database.hosts` | The host(s) of you target Mongo instance
 `target.database.name` | Database name
