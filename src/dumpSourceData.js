@@ -13,7 +13,7 @@ const dumpCollection = (collection, query = '{}') => {
   const authDb = createCLIOption('--authenticationDatabase', sourceDb.authenticationDatabase);
   const ssl = createCLIFlag('--ssl', sourceDb.ssl);
   return exec(
-    `mongodump ${ssl} --host ${sourceDb.hosts} --db ${sourceDb.name} ${user} ${password} ${authDb} --collection ${collection} --query '${query}' --gzip --out ${config.local.sourceDumpLocation}`
+    `mongodump ${ssl} --host ${sourceDb.hosts} --db ${sourceDb.name} ${user} ${password} ${authDb} --collection ${collection} --query '${query}' ${sourceDb.commpression} --out ${config.local.sourceDumpLocation}`
   ).catch((err) => {
     console.error(`ERROR DUMPING SOURCE ${collection}. This collection may not exist`, err);
   });
