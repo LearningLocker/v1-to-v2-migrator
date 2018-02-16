@@ -12,7 +12,7 @@ const dumpCollection = (collection, query = '{}') => {
   const password = createCLIOption('-p', sourceDb.password);
   const authDb = createCLIOption('--authenticationDatabase', sourceDb.authenticationDatabase);
   const ssl = createCLIFlag('--ssl', sourceDb.ssl);
-  const compression = createCLIFlag('--gzip', sourceDB.compression);
+  const compression = createCLIFlag('--gzip', sourceDb.compression);
   return exec(
     `mongodump ${ssl} --host ${sourceDb.hosts} --db ${sourceDb.name} ${user} ${password} ${authDb} --collection ${collection} --query '${query}' ${compression} --out ${config.local.sourceDumpLocation}`
   ).catch((err) => {
