@@ -9,7 +9,7 @@
     "bluebird": "^3.4.7",
     "fs-extra": "^2.1.2",
     "highland": "^2.11.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "mongodb": "^2.2.22",
     "object-hash": "^1.1.8",
     "sha1": "^1.1.1",
